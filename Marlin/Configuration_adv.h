@@ -2717,7 +2717,7 @@
     // originally defined in configuration_backend.h:624
     // (mm) Increasing the default z-add value to allow for easier access to clear purged filament
     #undef NOZZLE_PARK_POINT
-    #define NOZZLE_PARK_POINT { 10, 10, 30 }
+    #define NOZZLE_PARK_POINT { 15, (Y_MAX_POS - 15), 30 }
   #endif
 
   #define HOME_BEFORE_FILAMENT_CHANGE             // If needed, home before parking for filament change
