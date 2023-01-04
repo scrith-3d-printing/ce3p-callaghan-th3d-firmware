@@ -196,7 +196,7 @@
 // Example EStep Values: TH3D Aluminum Extruder - 95 ESteps, TH3D Tough Extruder - 410 ESteps, BMG Extruder - 415 ESteps
 // When installing a Tough Extruder or E3D Titan or Bondtech that is Geared you likely need to enable the REVERSE_E_MOTOR_DIRECTION option
 //#define CUSTOM_ESTEPS
-#define CUSTOM_ESTEPS_VALUE 95
+#define CUSTOM_ESTEPS_VALUE 96.5
 //#define REVERSE_E_MOTOR_DIRECTION
 
 // FILAMENT SENSOR UNLOAD SETTINGS -----------------
@@ -250,7 +250,7 @@
 
 // Use your own printer name - Uncomment both lines
 #define CUSTOM_PRINTER_NAME
-#define USER_PRINTER_NAME "Ender 3 Pro (Two)"
+#define USER_PRINTER_NAME "Purist"
 
 // If your printer is homing to the endstops hard uncomment this to change the homing speed/divisor to make it less aggressive.
 //#define SLOWER_HOMING
