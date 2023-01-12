@@ -250,7 +250,7 @@
 
 // Use your own printer name - Uncomment both lines
 #define CUSTOM_PRINTER_NAME
-#define USER_PRINTER_NAME "Purist"
+#define USER_PRINTER_NAME "Callaghan"
 
 // If your printer is homing to the endstops hard uncomment this to change the homing speed/divisor to make it less aggressive.
 //#define SLOWER_HOMING
@@ -340,6 +340,9 @@
 // Arc support is enabled by default on all builds but this takes up extra space. If you get compile errors due to the size being too large when enabling other options, then disable ARC_SUPPORT
 // by uncommenting the DISABLE_ARC_SUPPORT line below.
 //#define DISABLE_ARC_SUPPORT
+
+#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 0
+#define LCD_FEEDBACK_FREQUENCY_HZ 0
 
 //===========================================================================
 // **********************  END CONFIGURATION SETTINGS   *********************
