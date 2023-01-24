@@ -65,7 +65,7 @@
 
 //#define FILAMENT_RUNOUT_SENSOR                  // Setting this directly with the aim to use the official Creality runout sensor
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)             // Marlin settings from https://marlinfw.org/docs/gcode/M412.html
-  #define FILAMENT_RUNOUT_DISTANCE_MM        30 // (mm) The distance priner will continue printing after a runout is detected
+  #define FILAMENT_RUNOUT_DISTANCE_MM        30 // (mm) The distance printer will continue printing after a runout is detected
                                                 // Needed to get past my sensor because it will back up into it the wrong way without damage
 #endif
 
@@ -195,7 +195,7 @@
 // If you need to reverse the e motor direction also enabled the REVERSE_E_MOTOR_DIRECTION option.
 // Example EStep Values: TH3D Aluminum Extruder - 95 ESteps, TH3D Tough Extruder - 410 ESteps, BMG Extruder - 415 ESteps
 // When installing a Tough Extruder or E3D Titan or Bondtech that is Geared you likely need to enable the REVERSE_E_MOTOR_DIRECTION option
-//#define CUSTOM_ESTEPS
+#define CUSTOM_ESTEPS
 #define CUSTOM_ESTEPS_VALUE 96.5
 //#define REVERSE_E_MOTOR_DIRECTION
 
@@ -293,7 +293,7 @@
 //#define X_HOME_LOCATION -10  //default values
 //#define Y_HOME_LOCATION -10
 #define X_HOME_LOCATION -0
-#define Y_HOME_LOCATION -4.7
+#define Y_HOME_LOCATION -0
 
 
 // PID BED TEMPERATURE CONTROL ---------------------
@@ -907,8 +907,8 @@
       #define Y_BED_SIZE 235
       #define Z_MAX_POS 500
     #else
-      #define X_BED_SIZE 220
-      #define Y_BED_SIZE 220
+      #define X_BED_SIZE 230
+      #define Y_BED_SIZE 230
       #define Z_MAX_POS 250
     #endif
   #endif
@@ -998,13 +998,13 @@
   #define TEMP_SENSOR_PROBE 0
   #define TEMP_SENSOR_CHAMBER 0
 
-  #define DEFAULT_Kp 28.72
-  #define DEFAULT_Ki 2.62
-  #define DEFAULT_Kd 78.81
+  #define DEFAULT_Kp 39.9
+  #define DEFAULT_Ki 4.49
+  #define DEFAULT_Kd 88.6
   
-  #define DEFAULT_bedKp 462.10
-  #define DEFAULT_bedKi 85.47
-  #define DEFAULT_bedKd 624.59
+  #define DEFAULT_bedKp 119.3
+  #define DEFAULT_bedKi 19.62
+  #define DEFAULT_bedKd 483.4
 
   #define ENDSTOPPULLUPS
 
