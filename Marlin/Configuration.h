@@ -313,7 +313,7 @@
 // See here on how to use Linear Advance: http://marlinfw.org/docs/features/lin_advance.html
 #define LINEAR_ADVANCE
 // Change the K Value here or use M900 KX.XX in your starting code (recommended).
-#define LINEAR_ADVANCE_K 0.50
+#define LINEAR_ADVANCE_K 0.01
 
 // BL TOUCH ----------------------------------------
 // There are 2 ways to connect the BL Touch to the V4.2.X boards - All on the 5 pin header or using 3 pins on the 5 pin header + Z Endstop port
