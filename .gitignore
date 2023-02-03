@@ -119,6 +119,7 @@ tags
 
 # PlatformIO files/dirs
 .pio*
+!.pio/build/STM32F103RCT6_creality/*.bin
 .pioenvs
 .piolibdeps
 .clang_complete
