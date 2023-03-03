@@ -1,12 +1,12 @@
 #pragma once
 
-#define CONFIGURATION_BACKEND_H_VERSION 02000903
+#define CONFIGURATION_BACKEND_H_VERSION 02010200
 
 //===========================================================================
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.53"
+#define UNIFIED_VERSION "TH3D UFW 2.62"
 
 /**
  * ABL Probe Settings
@@ -14,6 +14,10 @@
 
 #if ENABLED(CUSTOM_PROBE)
   #define ABL_ENABLE
+#endif
+#if ENABLED(SV06_EZABL_OEM_MOUNT)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { 30, -28, 0 }
 #endif
 #if ENABLED(SPRITE_EXTRUDER_18MM_MOUNT)
   #define ABL_ENABLE
@@ -265,7 +269,28 @@
 #endif
 
 #if ENABLED(ABL_ENABLE)
-  #define ENABLE_LEVELING_FADE_HEIGHT
+
+  #if DISABLED(CHIRON)
+    #define USE_PROBE_FOR_Z_HOMING
+  #endif
+  
+  #if ENABLED(BD_SENSOR)
+    #define I2C_BD_DELAY 20
+    #define CUSTOM_MENU_MAIN
+    #define CUSTOM_MENU_MAIN_TITLE "BDSensor"
+    //#define CUSTOM_MENU_MAIN_SCRIPT_DONE "M117 BDSensor Done"
+    #define CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK
+    #define CUSTOM_MENU_MAIN_SCRIPT_RETURN   // Return to status screen after a script
+    #define CUSTOM_MENU_MAIN_ONLY_IDLE         // Only show custom menu when the machine is idle
+    #define MAIN_MENU_ITEM_1_DESC "Calibrate BDSensor"
+    #define MAIN_MENU_ITEM_1_GCODE "M102 S-6"
+    #define MAIN_MENU_ITEM_1_CONFIRM
+    #define MAIN_MENU_ITEM_2_DESC "Read BDSensor Data"
+    #define MAIN_MENU_ITEM_2_GCODE "M102 S-1"
+    #define MAIN_MENU_ITEM_2_CONFIRM
+  #endif
+
+  //#define ENABLE_LEVELING_FADE_HEIGHT // Disabling as it causes other issues
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     #define DEFAULT_LEVELING_FADE_HEIGHT 0 // (mm) Default fade height - Disable by default to prevent user issues
   #endif
@@ -279,10 +304,12 @@
   #define Z_PROBE_OFFSET_RANGE_MAX     1
   
   #define Z_MIN_PROBE_REPEATABILITY_TEST
-  #define Z_AFTER_HOMING               5
+  #if DISABLED(BD_SENSOR)
+    #define Z_AFTER_HOMING               5
+  #endif
   #define Z_PROBE_LOW_POINT           -10
   
-  #if DISABLED(BLTOUCH)
+  #if NONE(BLTOUCH, BD_SENSOR)
     #define FIX_MOUNTED_PROBE
   #endif
   
@@ -315,12 +342,12 @@
   #endif
   
   // ABL Probe Logic Settings
-  #if ENABLED(BLTOUCH) // BLTouch uses false
+  #if ANY(BLTOUCH, BD_SENSOR) // BLTouch & BDSensor use false
     #undef Z_MIN_PROBE_ENDSTOP_INVERTING
     #define Z_MIN_PROBE_ENDSTOP_INVERTING false
     #undef Z_MIN_ENDSTOP_INVERTING
     #define Z_MIN_ENDSTOP_INVERTING false
-  #elif (ENABLED(CR10S_PRO_STOCK_ABL) && ENABLED(CR10S_PRO)) || ANY(ENDER3_S1, ENDER3_S1_PRO, ENDER3_S1_PLUS)
+  #elif (ENABLED(CR10S_PRO_STOCK_ABL) && ENABLED(CR10S_PRO)) || ANY(ENDER3_S1, ENDER3_S1_PRO, ENDER3_S1_PLUS) || (ENABLED(SOVOL_SV06) && DISABLED(SV06_EZABL_INSTALLED))
     //Ender 3 S1 J713 header for Z Endstop is reverse logic via hardware for some reason. Need to invert the EZABL logic for it here.
     #undef Z_MIN_PROBE_ENDSTOP_INVERTING
     #define Z_MIN_PROBE_ENDSTOP_INVERTING false
@@ -349,9 +376,19 @@
   #error "You must uncomment the CUSTOM_PROBE option in the EZABL probe mount section and then enter your mount offsets into the Custom Probe section."
 #endif
 
+#if ENABLED(BD_SENSOR) && DISABLED(CUSTOM_PROBE)
+  #error "You must uncomment the CUSTOM_PROBE option in the EZABL probe mount section and then enter your mount offsets into the Custom Probe section."
+#endif
+
+#if DISABLED(BD_SENSOR) && ENABLED(BD_SENSOR_DISPLAY_MESSAGES)
+  #error "BD_SENSOR_DISPLAY_MESSAGES is ONLY compatible when using a BDSensor."
+#endif
+
 #if BOTH(BTT_TOUCH_SCREEN, ABL_ENABLE)
   #define G26_MESH_VALIDATION
 #endif
+
+#define NO_CREALITY_422_DRIVER_WARNING
 
 #if ENABLED(G26_MESH_VALIDATION)
   #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
@@ -362,6 +399,9 @@
   #define G26_XY_FEEDRATE_TRAVEL 100    // (mm/s) Feedrate for G26 XY travel moves.
   #define G26_RETRACT_MULTIPLIER   1.0  // G26 Q (retraction) used by default between mesh test elements.
 #endif
+
+// Bypass Linear Advance Low Jerk Warning
+#define ALLOW_LOW_EJERK
 
 /**
  * Temp Settings
@@ -500,6 +540,9 @@
 #if ENABLED(SLOWER_HOMING)
   #define HOMING_FEEDRATE_MM_M { (20*60), (20*60), (4*60) }
   #define Z_PROBE_FEEDRATE_FAST (4*60)
+#elif ENABLED(BD_SENSOR)
+  #define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (1*60) }
+  #define Z_PROBE_FEEDRATE_FAST (4*60)
 #else
   #if ENABLED(EZABL_SUPERFASTPROBE) && ENABLED(ABL_ENABLE) && DISABLED(BLTOUCH)
     #define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (15*60) }
@@ -527,33 +570,10 @@
   #define SPEAKER
 #endif
 
-#if defined(__AVR_ATmega1284__)
-  // Leave this on until 2.0.9.3 bug with fan control not working is resolved
-  // Once 2.0.9.3 Fan bug is fixed remove from future releases
-  // Details: https://github.com/MarlinFirmware/Marlin/issues/23418
-  #define FAN_FIX
-#elif defined(__AVR_ATmega1284P__)
-  // Leave this on until 2.0.9.3 bug with fan control not working is resolved
-  // Once 2.0.9.3 Fan bug is fixed remove from future releases
-  // Details: https://github.com/MarlinFirmware/Marlin/issues/23418
-  #define FAN_FIX
-#elif defined(__AVR_ATmega1280__)
-  // Leave this on until 2.0.9.3 bug with fan control not working is resolved
-  // Once 2.0.9.3 Fan bug is fixed remove from future releases
-  // Details: https://github.com/MarlinFirmware/Marlin/issues/23418
-  #define FAN_FIX
-#elif defined(__AVR_ATmega2560__)
-  // Leave this on until 2.0.9.3 bug with fan control not working is resolved
-  // Once 2.0.9.3 Fan bug is fixed remove from future releases
-  // Details: https://github.com/MarlinFirmware/Marlin/issues/23418
-  #define FAN_FIX
-#else
-  // do nothing
-#endif
-
 #if ENABLED(FAN_FIX)
   #define FAN_SOFT_PWM
   #define SOFT_PWM_SCALE 1
+  #define SOFT_PWM_DITHER
 #else
   #define SOFT_PWM_SCALE 0
 #endif
@@ -565,6 +585,11 @@
   #define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
   #define ENDSTOPPULLUP_ZMIN
   #define ENDSTOPPULLUP_ZMIN_PROBE
+#elif ENABLED(BD_SENSOR)
+  #define Z_CLEARANCE_DEPLOY_PROBE   0
+  #define Z_CLEARANCE_BETWEEN_PROBES 1
+  #define Z_CLEARANCE_MULTI_PROBE    1
+  #define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
 #elif ENABLED(EZABL_SUPERFASTPROBE) && ENABLED(ABL_ENABLE)
   #define Z_CLEARANCE_DEPLOY_PROBE   2
   #define Z_CLEARANCE_BETWEEN_PROBES 2
@@ -662,19 +687,19 @@
 #endif
 
 #if NONE(DWIN_CREALITY_LCD, DWIN_CREALITY_LCD_ENHANCED)
-  #define LEVEL_BED_CORNERS
+  #define LCD_BED_TRAMMING
 #endif
 
-#if ENABLED(LEVEL_BED_CORNERS)
-  #define LEVEL_CORNERS_INSET_LFRB { 30, 30, 30, 30 } // (mm) Left, Front, Right, Back insets
-  #define LEVEL_CORNERS_HEIGHT      0.0   // (mm) Z height of nozzle at leveling points
-  #define LEVEL_CORNERS_Z_HOP       5.0   // (mm) Z height of nozzle between leveling points
-  #define LEVEL_CENTER_TOO              // Move to the center after the last corner
-  //#define LEVEL_CORNERS_USE_PROBE
-  #if ENABLED(LEVEL_CORNERS_USE_PROBE)
-    #define LEVEL_CORNERS_PROBE_TOLERANCE 0.1
-    #define LEVEL_CORNERS_VERIFY_RAISED   // After adjustment triggers the probe, re-probe to verify
-    //#define LEVEL_CORNERS_AUDIO_FEEDBACK
+#if ENABLED(LCD_BED_TRAMMING)
+  #define BED_TRAMMING_INSET_LFRB { 30, 30, 30, 30 } // (mm) Left, Front, Right, Back insets
+  #define BED_TRAMMING_HEIGHT      0.0        // (mm) Z height of nozzle at leveling points
+  #define BED_TRAMMING_Z_HOP       5.0        // (mm) Z height of nozzle between leveling points
+  #define BED_TRAMMING_INCLUDE_CENTER       // Move to the center after the last corner
+  //#define BED_TRAMMING_USE_PROBE
+  #if ENABLED(BED_TRAMMING_USE_PROBE)
+    #define BED_TRAMMING_PROBE_TOLERANCE 0.1  // (mm)
+    #define BED_TRAMMING_VERIFY_RAISED        // After adjustment triggers the probe, re-probe to verify
+    //#define BED_TRAMMING_AUDIO_FEEDBACK
   #endif
 
   /**
@@ -694,7 +719,7 @@
    *  |  1       2  |   | 1         4 |    | 1         2 |   | 2           |
    *  LF --------- RF   LF --------- RF    LF --------- RF   LF --------- RF
    */
-  #define LEVEL_CORNERS_LEVELING_ORDER { LF, RF, RB, LB }
+  #define BED_TRAMMING_LEVELING_ORDER { LF, RF, RB, LB }
 #endif
 
 #if ENABLED(MANUAL_MESH_LEVELING) && DISABLED(ABL_ENABLE)

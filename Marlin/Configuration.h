@@ -3,7 +3,7 @@
  * NO IMPLIED SUPPORT OR WARRANTY IS PROVIDED WITH THIS FIRMWARE AND IS PROVIDED AS-IS
  */
 #pragma once
-#define CONFIGURATION_H_VERSION 02000903
+#define CONFIGURATION_H_VERSION 02010200
 
 //===========================================================================
 //============================ TH3D Configuration ===========================
@@ -16,27 +16,34 @@
 // compiling for these chips. Most boards regardless of the CPU will work as-is but if you have issues with
 // the board flashing the firmware you may have to change the default_envs value as noted in platformio.ini.
 
+// BOARDS WITH THE GD32 CPUS MAY REQUIRE FLASHING BACK TO THE STOCK FIRMWARE BEFORE LOADING A NEW BUILD ON THE BOARD
+// WE'VE INCLUDED THE STOCK FIRMWARE IN THE FOLDER CALLED "GD32 CPU Stock Firmware"
+// WHEN DOING MULTIPLE UPDATES WE RECOMMEND HAVING A SD CARD WITH THE STOCK FIRMWARE FOR QUICK FLASHING
+
 //===========================================================================
 // ***********   CREALITY PRINTERS W/V4.X.X BOARD - F103 CPU   **************
 //===========================================================================
 //------------------------------ V4.2.2 Board -------------------------------
-#define ENDER3_V422_BOARD
-//#define ENDER3_MAX_V422_BOARD
-//#define ENDER3_V2_V422_BOARD
-//#define ENDER5_V422_BOARD
+#define ENDER3
+//#define ENDER3_NEO
+//#define ENDER3_MAX
+//#define ENDER3_MAX_NEO
+//#define ENDER3_V2
+//#define ENDER3_V2_NEO
+//#define ENDER5
 
 // V4.2.2 TMC Driver Settings - Uncomment if you have TMC drivers on a 4.2.2 Board to set driver timings
 //#define V42X_TMC220X_DRIVERS //"A" or "B" Code on SD Slot
 
 //------------------------------ V4.2.3 Board -------------------------------
-//#define ENDER2_PRO_V423_BOARD
+//#define ENDER2_PRO
 
 //------------------------------ V4.2.7 Board --------------------------------
 // All V4.2.7 Configurations have moved to their own package as this is an aftermarket board.
 // The firmware for this board is included when you purchase a V4.2.7 from TH3D or if you purchase the firmware from the TH3D website.
 
 //------------------------------ V4.3.1 Board -------------------------------
-//#define ENDER6_V431_BOARD
+//#define ENDER6
 
 // Ender 6 - Filament Sensor Override
 // If you have issues with your filament sensor on the Ender 6 uncomment the below option to disable it.
@@ -80,13 +87,13 @@
 //#define ENDER5_PLUS_OEM
 //#define ENDER6_OEM
 //#define ENDER6_PETSFANG //Source: https://support.th3dstudio.com/helpcenter/ender-6-5015-ezabl-petsfang-mount/
+//#define SPRITE_EXTRUDER_18MM_MOUNT // Mounts to the stock CRTouch bracket
 //#define CUSTOM_PROBE
 
-// Ender 3 V2 - LCD Setting
-// If you converted your Ender 3 V2 LCD to the 12864 Version, Uncomment the below line.
-// The DACAI LCD is currently buggy with display artifacts and its current firmware.
+// Ender 3 NEO Series/Ender 3 V2 LCD - LCD Setting
+// If you converted your Ender 3 NEO Series OR V2 LCD to the 12864 Version, Uncomment the below line.
 // Get the conversion kit here: https://www.th3dstudio.com/product/creality-ender-3-v2-12864-lcd-conversion-upgrade-kit/
-//#define ENDER3_V2_12864_LCD
+//#define ENDER3_12864_LCD_KIT
 
 // Ender 5 - Leadscrew Setting
 // If you have the new Ender 5/5 Pro Model that has the new 800steps/mm Z leadscrew uncomment the below option to set the correct steps/mm
@@ -221,7 +228,7 @@
 // If you have a hotend and thermistor capable of over 290C you can set the max temp value below.
 // Setting this higher than 290C on a stock or traditional thermistor will damage it. Refer to your thermistor documentation to see what max temp is.
 //#define HIGH_TEMP_THERMISTOR
-#define HIGH_TEMP_THERMISTOR_TEMP 290
+#define HIGH_TEMP_THERMISTOR_TEMP 260
 
 // BED THERMISTOR SETTINGS -------------------------
 
@@ -262,10 +269,39 @@
 //#define REVERSE_Y_MOTOR
 //#define REVERSE_Z_MOTOR
 
+/**
+ * Print Counter
+ *
+ * Track statistical data such as:
+ *
+ *  - Total print jobs
+ *  - Total successful print jobs
+ *  - Total failed print jobs
+ *  - Total time printing
+ *
+ * View the current statistics with M78.
+ */
+//#define PRINTCOUNTER
+#if ENABLED(PRINTCOUNTER)
+  #define PRINTCOUNTER_SAVE_INTERVAL 60 // (minutes) EEPROM save interval during print. A value of 0 will save stats at end of print.
+#endif
+
 //===========================================================================
 //****************** COMMUNITY REQUESTED FEATURES ***************************
 //*** COMMUNITY REQUESTED FEATURES ARE ALL NOT SUPPORTED BY TH3D SUPPORT ****
 //===========================================================================
+
+// INPUT SHAPING -----------------------------------
+// See here on how to use Input Shaping: https://www.th3dstudio.com/marlin-input-shaping-calculator/
+//#define INPUT_SHAPING
+// Below are the frequency and damping settings for each axis.
+// Damping must have f at the end of the number and the range is 0.00-1.00.
+// X Axis Settings
+#define INPUT_SHAPING_FREQ_X 40
+#define INPUT_SHAPING_DAMPING_X 0.15f
+// Y Axis Settings
+#define INPUT_SHAPING_FREQ_Y 40
+#define INPUT_SHAPING_DAMPING_Y 0.15f
 
 // ENDER XTENDER KIT SETTINGS ----------------------
 
@@ -358,28 +394,63 @@
  */
  
 //V42X with TMC Driver Sanity Checks
-#if ANY(ENDER2_PRO_V423_BOARD, ENDER3_V2_V422_BOARD, ENDER6_V431_BOARD)
+#if ANY(ENDER2_PRO, ENDER3_V2, ENDER6)
   #define V42X_TMC220X_DRIVERS
 #endif
 
 #if BOTH(V42X_TMC220X_DRIVERS, LINEAR_ADVANCE)
-  #error "Linear Advance does NOT work on the V4.2.X boards with the TMC drivers due to how Creality has them setup. Disable Linear Advance to continue or comment this line out to continue compile at your own risk."
+  #warning "Linear Advance may NOT work on the V4.2.X boards with the TMC drivers due to how Creality has them setup. Comment out this warning to hide it."
 #endif
 
-#if ENABLED(ENDER3_V422_BOARD)
-  #define ENDER3
-#endif
-
-#if ENABLED(ENDER3_V2_V422_BOARD)
+//Ender 3 NEO Settings
+#if ENABLED(ENDER3_V2_NEO)
   #define ENDER3_V2
+  
+  #if NONE(BLTOUCH, ENDER3_V2_OEM)
+    #define BLTOUCH
+    #define CUSTOM_PROBE
+    #define NOZZLE_TO_PROBE_OFFSET { -40, -14, 0 }
+    #define BLTOUCH_ON_5PIN
+    #define CRTOUCH_PROBE_NAMING
+  #endif
 #endif
 
-#if ENABLED(ENDER3_MAX_V422_BOARD)
+//Ender 3 NEO Settings
+#if ENABLED(ENDER3_NEO)
+  #define ENDER3
+  
+  #if NONE(BLTOUCH, ENDER3_OEM)
+    #define BLTOUCH
+    #define CUSTOM_PROBE
+    #define NOZZLE_TO_PROBE_OFFSET { -40, -14, 0 }
+    #define BLTOUCH_ON_5PIN
+    #define CRTOUCH_PROBE_NAMING
+  #endif
+  
+  #if DISABLED(ENDER3_12864_LCD_KIT)
+    #define ENDER3_NEO_LCD
+  #endif
+#endif
+
+//Ender 3 Max NEO Settings
+#if ENABLED(ENDER3_MAX_NEO)
   #define ENDER3_MAX
-#endif
-
-#if ENABLED(ENDER5_V422_BOARD)
-  #define ENDER5
+  
+  #if NONE(BLTOUCH, ENDER3_MAX_OEM)
+    #define BLTOUCH
+    #define CUSTOM_PROBE
+    #define NOZZLE_TO_PROBE_OFFSET { -40, -14, 0 }
+    #define BLTOUCH_ON_5PIN
+    #define CRTOUCH_PROBE_NAMING
+  #endif
+  
+  #if DISABLED(ENDER3_12864_LCD_KIT)
+    #define ENDER3_NEO_LCD
+  #endif
+  
+  #if NONE(EZOUT_ENABLE, EZOUT_ENABLE_J1)
+    #define EZOUT_ENABLE_J1
+  #endif
 #endif
 
 /**
@@ -391,7 +462,7 @@
 #endif
  
 //Ender 6 V431 Board Settings
-#if ENABLED(ENDER6_V431_BOARD)
+#if ENABLED(ENDER6)
 	#define SERIAL_PORT 1
   
   #define PRINTER_VOLTAGE_24
@@ -626,7 +697,7 @@
 // End Ender 6 Settings
 
 //Ender 2 Pro Board Settings
-#if ENABLED(ENDER2_PRO_V423_BOARD)
+#if ENABLED(ENDER2_PRO)
   #define SERIAL_PORT 1
 
   #define BAUDRATE 115200
@@ -841,8 +912,8 @@
 //End Ender 2 Pro Board Settings
  
 //Ender 3/3 MAX/5/5 Plus V42X Board Settings
-#if ANY(ENDER3_V422_BOARD, ENDER5_V422_BOARD, ENDER3_MAX_V422_BOARD)
-  #if ENABLED(ENDER3_MAX_V422_BOARD)
+#if ANY(ENDER3, ENDER5, ENDER3_MAX)
+  #if ENABLED(ENDER3_MAX)
     #define MOUNTED_FILAMENT_SENSOR
   #endif
   
@@ -852,17 +923,38 @@
 
   #define BAUDRATE 115200
   
-  #define CR10_STOCKDISPLAY
-  #define RET6_12864_LCD
+  #if DISABLED(ENDER3_NEO_LCD)
+    #define CR10_STOCKDISPLAY
+    #define RET6_12864_LCD
+  #else
+    #define LCD_SERIAL_PORT 3
+    #define NO_LCD_REINIT 1
+    //Different Ender 3 V2 LCD Display Options - Change at your own risk!!!
+    //#define DWIN_CREALITY_LCD           // Creality UI
+    //#define DWIN_CREALITY_LCD_ENHANCED  // Enhanced UI
+    //#define DWIN_CREALITY_LCD_JYERSUI   // Jyers UI by Jacob Myers
+    #define DWIN_MARLINUI_PORTRAIT      // MarlinUI (portrait orientation)
+    //#define DWIN_MARLINUI_LANDSCAPE     // MarlinUI (landscape orientation)
+  #endif
+
+  #if ANY(DWIN_CREALITY_LCD, DWIN_CREALITY_LCD_JYERSUI, DWIN_CREALITY_LCD_ENHANCED)
+    #define ENABLE_PIDBED
+    #define POWER_LOSS_RECOVERY
+  #endif
+
+  #define ENCODER_PULSES_PER_STEP 4
+  #define ENCODER_STEPS_PER_MENU_ITEM 1
+
+  #define Z_PROBE_OFFSET_RANGE_MIN -10
+  #define Z_PROBE_OFFSET_RANGE_MAX 10
+  #define EXTRUDE_MAXLENGTH 1000
   
   #if ENABLED(REVERSE_KNOB_DIRECTION)
     #define REVERSE_ENCODER_DIRECTION
   #endif
   
-  #if ENABLED(ENDER3_V422_BOARD) || ENABLED(ENDER5_V422_BOARD) || ENABLED(ENDER3_MAX_V422_BOARD)
-    #ifndef MOTHERBOARD
-      #define MOTHERBOARD BOARD_CREALITY_V422
-    #endif
+  #ifndef MOTHERBOARD
+    #define MOTHERBOARD BOARD_CREALITY_V422
   #endif
   
   #if ENABLED(ENDER5_NEW_LEADSCREW)
@@ -949,7 +1041,7 @@
     #define USE_ZMIN_PLUG
   #endif
 
-  #if ENABLED(ENDER5_V422_BOARD)
+  #if ENABLED(ENDER5)
     #define X_HOME_DIR 1
     #define Y_HOME_DIR 1
     #define Z_HOME_DIR -1
@@ -1027,7 +1119,7 @@
     #define Y_DRIVER_TYPE TMC2208_STANDALONE
     #define Z_DRIVER_TYPE TMC2208_STANDALONE
     #define E0_DRIVER_TYPE TMC2208_STANDALONE
-  #elif ENABLED(ENDER3_MAX_V422_BOARD)
+  #elif ENABLED(ENDER3_MAX)
     #define X_DRIVER_TYPE TMC2208_STANDALONE
     #define Y_DRIVER_TYPE TMC2208_STANDALONE
     #define Z_DRIVER_TYPE A4988
@@ -1094,7 +1186,7 @@
     #endif
   #endif
 
-  #if ENABLED(ENDER3_MAX_V422_BOARD)
+  #if ENABLED(ENDER3_MAX)
     #define FILAMENT_RUNOUT_SENSOR
   #endif
 
@@ -1153,7 +1245,7 @@
 // End Ender 3/3 MAX/5 V42X Board Settings
  
 // Ender 3 V2 Settings
-#if ENABLED(ENDER3_V2_V422_BOARD)
+#if ENABLED(ENDER3_V2)
   #define SERIAL_PORT 1
 
   #define BAUDRATE 115200
@@ -1332,11 +1424,10 @@
   #define INVERT_E6_DIR false
   #define INVERT_E7_DIR false
 
-  #if ENABLED(ENDER3_V2_12864_LCD)
+  #if ENABLED(ENDER3_12864_LCD_KIT)
     #define CR10_STOCKDISPLAY
     #define RET6_12864_LCD
   #else
-    //Not working yet with the DACAI LCD, OK with the DWIN LCD - Background Issues
     #define LCD_SERIAL_PORT 3
     #define NO_LCD_REINIT 1
     //Different Ender 3 V2 LCD Display Options - Change at your own risk!!!
